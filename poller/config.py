@@ -32,12 +32,21 @@ class Wrapper:
 # entries are scaffolded but not polled yet -- fill in a verified
 # pool_address (and flip enabled=True) before adding a ticker/wrapper.
 #
-# NVDA/xstocks pool address below was confirmed live against GeckoTerminal's
-# search API on 2026-08-20 (name "NVDAx / USDC", $2.4M reserve, quote token
-# = real USDC mint). NVDA/dinari has NO confirmed pool: GeckoTerminal search
-# returns nothing for dNVDA on Arbitrum, consistent with Dinari's primary
+# xstocks pool/mint addresses below were confirmed live on 2026-08-20/21:
+# GeckoTerminal's specific-pool endpoint for price/reserve, and Solana RPC
+# getAccountInfo (jsonParsed) for the mint's tokenMetadata +
+# scaledUiAmountConfig extensions (symbol matches, same issuer authority
+# 5aMNNLQJwAEeoemTEMkv5NVjqKwvvefRYCQ5Z67HFvEq as NVDAx). Pool prices also
+# cross-checked against real underlying prices at the time (NVDA $219.74 vs
+# pool $218.96; AAPL $313.28 vs pool $313.75; TSLA $345.13 vs pool $348.64).
+# AAPLx/USDC liquidity is thin ($100k reserve vs NVDA's $2.4M/TSLA's $2.0M)
+# -- watch for stale/wide quotes on that one.
+#
+# */dinari has NO confirmed pool for any of these three: GeckoTerminal
+# search returns nothing on Arbitrum, consistent with Dinari's primary
 # liquidity being broker-dealer mint/burn rather than an AMM pool -- see
-# docs/data-sources.md. Left disabled rather than guessed.
+# docs/data-sources.md. Left disabled rather than guessed; also blocked on
+# partner API access for NAV data as an alternate source.
 INSTRUMENTS = [
     {
         "ticker": "NVDA",
@@ -60,8 +69,9 @@ INSTRUMENTS = [
         "wrapper": Wrapper.XSTOCKS,
         "chain": "solana",
         "xstocks_symbol": "AAPLx",
-        "pool_address": None,
-        "enabled": False,
+        "pool_address": "EHdow7Yhmr1ac8Qff9Co1LhSosr38puA6zLd4cbJLdpV",
+        "mint_address": "XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp",
+        "enabled": True,
     },
     {
         "ticker": "AAPL",
@@ -75,8 +85,9 @@ INSTRUMENTS = [
         "wrapper": Wrapper.XSTOCKS,
         "chain": "solana",
         "xstocks_symbol": "TSLAx",
-        "pool_address": None,
-        "enabled": False,
+        "pool_address": "8aDaBQkTrS6HVMjyc6EZebgdiaXhLYGriDWKWWp1NpFF",
+        "mint_address": "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB",
+        "enabled": True,
     },
     {
         "ticker": "TSLA",
