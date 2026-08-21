@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS multipliers (
     ticker          TEXT NOT NULL,
     wrapper         TEXT NOT NULL,
     multiplier      NUMERIC NOT NULL,
-    source          TEXT NOT NULL,           -- 'xstocks_api' | 'fallback_default'
+    source          TEXT NOT NULL,           -- 'solana_onchain' | 'fallback_default'
     fetched_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_multipliers_lookup

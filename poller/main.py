@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import config
 import db
 import normalize
-from sources import alpaca, geckoterminal, xstocks
+from sources import alpaca, geckoterminal, solana_rpc
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,17 +49,17 @@ def get_multiplier(instrument: dict):
         return 1, "not_applicable"
 
     try:
-        m = xstocks.get_multiplier(instrument["xstocks_symbol"])
-        return m, "xstocks_api"
-    except xstocks.XStocksError as e:
+        m = solana_rpc.get_scaled_ui_multiplier(instrument["mint_address"])
+        return m, "solana_onchain"
+    except solana_rpc.SolanaRpcError as e:
         log.warning(
-            "xstocks: multiplier lookup failed for %s (%s) -- falling back to 1.0",
-            instrument["xstocks_symbol"],
+            "solana_rpc: multiplier lookup failed for %s (%s) -- falling back to 1.0",
+            instrument["mint_address"],
             e,
         )
         return 1, "fallback_default"
     except Exception:
-        log.exception("xstocks: unexpected error fetching multiplier for %s", instrument["xstocks_symbol"])
+        log.exception("solana_rpc: unexpected error fetching multiplier for %s", instrument["mint_address"])
         return 1, "fallback_default"
 
 

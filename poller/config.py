@@ -11,14 +11,11 @@ POLL_INTERVAL_SECONDS = _env_int("POLL_INTERVAL_SECONDS", 300)
 ALPACA_API_KEY_ID = os.environ.get("ALPACA_API_KEY_ID", "")
 ALPACA_API_SECRET_KEY = os.environ.get("ALPACA_API_SECRET_KEY", "")
 
-XSTOCKS_API_KEY = os.environ.get("XSTOCKS_API_KEY", "")
-# Unconfirmed without a live API key -- docs.xstocks.fi is Cloudflare-gated
-# and the public swagger endpoint isn't wired to a real spec. Override via
-# env once you've confirmed the real path from your dashboard/API key docs.
-XSTOCKS_API_BASE = os.environ.get("XSTOCKS_API_BASE", "https://api.xstocks.fi")
-XSTOCKS_ASSET_PATH_TEMPLATE = os.environ.get(
-    "XSTOCKS_ASSET_PATH_TEMPLATE", "/v1/assets/{symbol}"
-)
+# xStocks tokens use Solana's Token-2022 Scaled UI Amount extension, which
+# stores the rebasing multiplier directly on the mint account. Read it via
+# a public Solana RPC instead of xStocks' partner-gated REST API -- see
+# sources/solana_rpc.py.
+SOLANA_RPC_URL = os.environ.get("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
 
 DINARI_API_KEY_ID = os.environ.get("DINARI_API_KEY_ID", "")
 DINARI_API_SECRET_KEY = os.environ.get("DINARI_API_SECRET_KEY", "")
@@ -48,6 +45,7 @@ INSTRUMENTS = [
         "chain": "solana",
         "xstocks_symbol": "NVDAx",
         "pool_address": "49iMatQtoyabsYAQc8GafVq6aeBFVDxSRH44oiatyyw6",
+        "mint_address": "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
         "enabled": True,
     },
     {

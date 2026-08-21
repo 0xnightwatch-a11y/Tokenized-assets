@@ -12,11 +12,13 @@ def apply_multiplier(raw_price_usd, multiplier) -> Decimal:
     price increasingly understates true NAV-equivalent value per display
     unit -- hence multiplying (not dividing) here.
 
-    Empirical spot-check (2026-08-20): NVDAx/USDC raw pool price was
-    $218.96 vs. NVDA underlying at $219.74 -- multiplier is evidently ~1.0
-    right now (no recent corporate action), so this direction could not be
-    definitively confirmed against a multiplier != 1. Re-verify once a real
-    multiplier value is observed via the xStocks API.
+    Confirmed live (2026-08-20) via Solana RPC (sources/solana_rpc.py):
+    NVDAx's scaledUiAmountConfig multiplier is 1.000103090792305, with a
+    scheduled bump to 1.0009180758490996 already queued on-chain. Raw pool
+    price ($218.96) vs. NVDA underlying (~$219.74) is consistent with a
+    multiplier this close to 1.0 -- re-check the direction once the
+    multiplier has moved further from 1.0 and produces a bigger, more
+    conclusive delta.
     """
     return Decimal(str(raw_price_usd)) * Decimal(str(multiplier))
 
