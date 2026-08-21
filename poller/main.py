@@ -44,29 +44,38 @@ def fetch_underlying_prices(conn) -> dict:
 
 def get_multiplier(instrument: dict):
     """Returns (multiplier, source). Dinari dShares are 1:1, not rebasing --
-    no multiplier lookup needed. Ondo DOES rebase (multiplier = "sValue"
-    from their SyntheticSharesOracle contract, confirmed via Chainlink's
-    docs and Ondo's own Cantina audit) but the oracle's address/signature
-    isn't pinned down yet -- falls back to 1.0 like a failed lookup would,
-    rather than skip normalization silently."""
+    no multiplier lookup needed at all.
+
+    xStocks and Ondo both rebase, and (confirmed 2026-08-21) both do it via
+    the exact same mechanism: a Solana Token-2022 Scaled UI Amount mint
+    extension. For xStocks that mint is the same one the polled pool
+    trades against; for Ondo the polled pool is on Ethereum but the
+    multiplier is read off Ondo's Solana-side mint instead (cross-chain --
+    assumes Ondo keeps the NAV-adjustment factor consistent across chains
+    for the same underlying, which wasn't independently verified but is
+    the standard multi-chain-issuance assumption). Any instrument with a
+    `solana_multiplier_mint` set uses this path; anything else without one
+    (or a failed lookup) falls back to 1.0, same as before.
+    """
     if instrument["wrapper"] == config.Wrapper.DINARI:
         return 1, "not_applicable"
 
-    if instrument["wrapper"] == config.Wrapper.ONDO:
+    mint = instrument.get("solana_multiplier_mint")
+    if not mint:
         return 1, "fallback_default"
 
     try:
-        m = solana_rpc.get_scaled_ui_multiplier(instrument["mint_address"])
+        m = solana_rpc.get_scaled_ui_multiplier(mint)
         return m, "solana_onchain"
     except solana_rpc.SolanaRpcError as e:
         log.warning(
             "solana_rpc: multiplier lookup failed for %s (%s) -- falling back to 1.0",
-            instrument["mint_address"],
+            mint,
             e,
         )
         return 1, "fallback_default"
     except Exception:
-        log.exception("solana_rpc: unexpected error fetching multiplier for %s", instrument["mint_address"])
+        log.exception("solana_rpc: unexpected error fetching multiplier for %s", mint)
         return 1, "fallback_default"
 
 

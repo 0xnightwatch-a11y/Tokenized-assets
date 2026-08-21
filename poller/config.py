@@ -55,10 +55,17 @@ class Wrapper:
 # $314.92; TSLA $345.13 vs pool $345.43) -- all on Ethereum/Uniswap v3.
 # Liquidity is thin across the board ($3k-$33k reserve, thinner than any
 # xstocks pool) -- treat depth/spread estimates on these as low-confidence.
-# Ondo DOES rebase (multiplier = "sValue" from a SyntheticSharesOracle
-# contract, confirmed via Chainlink's docs + Ondo's public Cantina audit)
-# but the oracle's address/call signature isn't pinned down yet, so these
-# run on the multiplier=1.0 fallback for now -- see main.py get_multiplier.
+#
+# Ondo's multiplier: their own SyntheticSharesOracle ("sValue") on Ethereum
+# wasn't pinned down, BUT Ondo also issues each of these on Solana, and
+# those Solana mints use the exact same Token-2022 Scaled UI Amount
+# extension as xstocks (confirmed live 2026-08-21 -- e.g. NVDAon's Solana
+# mint multiplier reads 1.0009320542470574). solana_multiplier_mint below
+# points at that Solana-side mint even though the polled price comes from
+# the Ethereum pool -- this assumes Ondo keeps the NAV-adjustment factor
+# in sync across chains for the same underlying, which is the standard
+# multi-chain-issuance assumption but wasn't independently cross-checked
+# against an Ethereum-side value (couldn't find one to check against).
 INSTRUMENTS = [
     {
         "ticker": "NVDA",
@@ -66,7 +73,7 @@ INSTRUMENTS = [
         "chain": "solana",
         "xstocks_symbol": "NVDAx",
         "pool_address": "49iMatQtoyabsYAQc8GafVq6aeBFVDxSRH44oiatyyw6",
-        "mint_address": "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
+        "solana_multiplier_mint": "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
         "enabled": True,
     },
     {
@@ -81,6 +88,7 @@ INSTRUMENTS = [
         "wrapper": Wrapper.ONDO,
         "chain": "eth",
         "pool_address": "0xf5294094bce435bfbd0ec488be5c462aaf32bc7a",
+        "solana_multiplier_mint": "gEGtLTPNQ7jcg25zTetkbmF7teoDLcrfTnQfmn2ondo",
         "enabled": True,
     },
     {
@@ -89,7 +97,7 @@ INSTRUMENTS = [
         "chain": "solana",
         "xstocks_symbol": "AAPLx",
         "pool_address": "EHdow7Yhmr1ac8Qff9Co1LhSosr38puA6zLd4cbJLdpV",
-        "mint_address": "XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp",
+        "solana_multiplier_mint": "XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp",
         "enabled": True,
     },
     {
@@ -104,6 +112,7 @@ INSTRUMENTS = [
         "wrapper": Wrapper.ONDO,
         "chain": "eth",
         "pool_address": "0x50b31ab7a061843ca6ebab6c006ab4ece6ca2fd8",
+        "solana_multiplier_mint": "123mYEnRLM2LLYsJW3K6oyYh8uP1fngj732iG638ondo",
         "enabled": True,
     },
     {
@@ -112,7 +121,7 @@ INSTRUMENTS = [
         "chain": "solana",
         "xstocks_symbol": "TSLAx",
         "pool_address": "8aDaBQkTrS6HVMjyc6EZebgdiaXhLYGriDWKWWp1NpFF",
-        "mint_address": "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB",
+        "solana_multiplier_mint": "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB",
         "enabled": True,
     },
     {
@@ -127,6 +136,7 @@ INSTRUMENTS = [
         "wrapper": Wrapper.ONDO,
         "chain": "eth",
         "pool_address": "0x31227b50eccdc9c589826aa2d9e7c5619b1895da",
+        "solana_multiplier_mint": "KeGv7bsfR4MheC1CkmnAVceoApjrkvBhHYjWb67ondo",
         "enabled": True,
     },
 ]
