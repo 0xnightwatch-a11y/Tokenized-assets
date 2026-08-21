@@ -44,9 +44,16 @@ def fetch_underlying_prices(conn) -> dict:
 
 def get_multiplier(instrument: dict):
     """Returns (multiplier, source). Dinari dShares are 1:1, not rebasing --
-    only xStocks needs a live multiplier lookup."""
-    if instrument["wrapper"] != config.Wrapper.XSTOCKS:
+    no multiplier lookup needed. Ondo DOES rebase (multiplier = "sValue"
+    from their SyntheticSharesOracle contract, confirmed via Chainlink's
+    docs and Ondo's own Cantina audit) but the oracle's address/signature
+    isn't pinned down yet -- falls back to 1.0 like a failed lookup would,
+    rather than skip normalization silently."""
+    if instrument["wrapper"] == config.Wrapper.DINARI:
         return 1, "not_applicable"
+
+    if instrument["wrapper"] == config.Wrapper.ONDO:
+        return 1, "fallback_default"
 
     try:
         m = solana_rpc.get_scaled_ui_multiplier(instrument["mint_address"])
